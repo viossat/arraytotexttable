@@ -1,0 +1,29 @@
+{
+    "name": "mathieuviossat/arraytotexttable",
+    "description": "Display arrays in terminal",
+    "type": "library",
+    "keywords": [
+        "array",
+        "text",
+        "table",
+        "terminal",
+        "ascii",
+        "unicode"
+    ],
+    "homepage": "https://github.com/MathieuViossat/arraytotexttable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mathieu Viossat",
+            "email": "mathieu@viossat.fr",
+            "homepage": "http://viossat.fr"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"MathieuViossat\\Util\\": "src/"}
+    },
+    "require": {
+        "php": ">=5.3.0",
+        "zendframework/zend-text": "~2.5"
+    }
+}
