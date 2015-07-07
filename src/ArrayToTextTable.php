@@ -13,15 +13,13 @@
 
 namespace MathieuViossat\Util;
 
-use \Zend\Text\Table\Decorator\Unicode;
-
 class ArrayToTextTable {
 
     const AlignLeft   = STR_PAD_RIGHT;
     const AlignCenter = STR_PAD_BOTH;
     const AlignRight  = STR_PAD_LEFT;
 
-    protected $table;
+    protected $data;
     protected $keys;
     protected $widths;
     protected $decorator;
@@ -29,30 +27,21 @@ class ArrayToTextTable {
     protected $upperKeys;
     protected $keysAlignment;
     protected $valuesAlignment;
+    protected $formatter;
 
-    public function __construct($table) {
-        $this->table = $table;
-
-        $this->keys = [];
-        foreach ($this->table as $row)
-            $this->keys = array_merge($this->keys, array_keys($row));
-        $this->keys = array_unique($this->keys);
-
-        foreach ($this->keys as $key)
-            $this->setWidth($key, $key);
-
-        foreach ($this->table as $row)
-            foreach ($row as $columnKey => $columnValue)
-                $this->setWidth($columnKey, $columnValue);
+    public function __construct($data) {
+        $this->data = $data;
 
         $this->setDecorator(new \Zend\Text\Table\Decorator\Unicode())
             ->setIndentation('')
             ->setUpperKeys(true)
             ->setKeysAlignment(self::AlignCenter)
-            ->setValuesAlignment(self::AlignLeft);
+            ->setValuesAlignment(self::AlignLeft)
+            ->setFormatter(null);
     }
 
     public function getTable() {
+        $data = $this->prepare();
         $i = $this->indentation;
         $d = $this->decorator;
 
@@ -65,7 +54,7 @@ class ArrayToTextTable {
 
         $table .= $i . $this->line($d->getVerticalRight(), $d->getHorizontal(), $d->getCross(), $d->getVerticalLeft()) . PHP_EOL;
 
-        foreach ($this->table as $row)
+        foreach ($data as $row)
             $table .= $i . $this->row($row, $this->valuesAlignment) . PHP_EOL;
 
         $table .= $i . $this->line($d->getBottomLeft(), $d->getHorizontal(), $d->getHorizontalUp(), $d->getBottomRight()) . PHP_EOL;
@@ -93,6 +82,10 @@ class ArrayToTextTable {
         return $this->valuesAlignment;
     }
 
+    public function getFormatter() {
+        return $this->formatter;
+    }
+
     public function setDecorator($decorator) {
         $this->decorator = $decorator;
         return $this;
@@ -118,6 +111,11 @@ class ArrayToTextTable {
         return $this;
     }
 
+    public function setFormatter($formatter) {
+        $this->formatter = $formatter;
+        return $this;
+    }
+
     protected function line($left, $horizontal, $link, $right) {
         $line = $left;
         foreach ($this->keys as $key)
@@ -132,6 +130,32 @@ class ArrayToTextTable {
             $line .= ' ' . static::mb_str_pad($value, $this->widths[$key], ' ', $alignment) . ' ' . $this->decorator->getVertical();
         }
         return $line;
+    }
+
+    protected function prepare() {
+        $this->keys = [];
+        $this->widths = [];
+
+        $data = $this->data;
+
+        if ($this->formatter instanceof \Closure) {
+            foreach ($data as &$row)
+                array_walk($row, $this->formatter, $this);
+            unset($row);
+        }
+
+        foreach ($data as $row)
+            $this->keys = array_merge($this->keys, array_keys($row));
+        $this->keys = array_unique($this->keys);
+
+        foreach ($this->keys as $key)
+            $this->setWidth($key, $key);
+
+        foreach ($data as $row)
+            foreach ($row as $columnKey => $columnValue)
+                $this->setWidth($columnKey, $columnValue);
+
+        return $data;
     }
 
     protected function setWidth($key, $value) {

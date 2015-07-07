@@ -24,35 +24,35 @@ $data = [
         'firstname' => 'Mollie',
         'surname' => 'Alvarez',
         'email' => 'molliealvarez@example.com',
-        ],
+    ],
     [
         'firstname' => 'Dianna',
         'surname' => 'Mcbride',
         'age' => 43,
         'email' => 'diannamcbride@example.com',
-        ],
+    ],
     [
         'firstname' => 'Elvira',
         'surname' => 'Mueller',
         'age' => 50,
         'email' => 'elviramueller@example.com',
-        ],
+    ],
     [
         'firstname' => 'Corine',
         'surname' => 'Morton',
         'age' => 35,
-        ],
+    ],
     [
         'firstname' => 'James',
         'surname' => 'Allison',
-        ],
+    ],
     [
         'firstname' => 'Bowen',
         'surname' => 'Kelley',
         'age' => 50,
         'email' => 'bowenkelley@example.com',
-        ],
-    ];
+    ],
+];
 
 $renderer = new ArrayToTextTable($data);
 echo $renderer->getTable();
@@ -91,8 +91,21 @@ $renderer->setKeysAlignment(ArrayToTextTable::AlignCenter);
 
 $renderer->setValuesAlignment(ArrayToTextTable::AlignLeft);
 // AlignLeft (default), AlignCenter, AlignRight
+
+$formatter = function(&$value, $key, $renderer) {
+    if ($value === true)
+        $value = 'TRUE';
+    else if ($value === false)
+        $value = 'FALSE';
+    else if ($value === '')
+        $value = 'EMPTY';
+    else if ($value === null)
+        $value = 'NULL';
+};
+$renderer->setFormatter($formatter);
+// default: null
 ```
 
-## License MIT
+## License
 
 This library is published under [The MIT License](http://opensource.org/licenses/MIT).
