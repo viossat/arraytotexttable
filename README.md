@@ -83,6 +83,9 @@ $renderer->setDecorator(new \Zend\Text\Table\Decorator\Ascii());
 $renderer->setIndentation("\t");
 // default: *empty string*
 
+$renderer->setDisplayKeys(false);
+// true, false, 'auto' (default, doesn't display keys if all of them are integers)
+
 $renderer->setUpperKeys(false);
 // default: true
 

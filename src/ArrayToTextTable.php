@@ -24,6 +24,7 @@ class ArrayToTextTable {
     protected $widths;
     protected $decorator;
     protected $indentation;
+    protected $displayKeys;
     protected $upperKeys;
     protected $keysAlignment;
     protected $valuesAlignment;
@@ -34,6 +35,7 @@ class ArrayToTextTable {
 
         $this->setDecorator(new \Zend\Text\Table\Decorator\Unicode())
             ->setIndentation('')
+            ->setDisplayKeys('auto')
             ->setUpperKeys(true)
             ->setKeysAlignment(self::AlignCenter)
             ->setValuesAlignment(self::AlignLeft)
@@ -45,14 +47,26 @@ class ArrayToTextTable {
         $i = $this->indentation;
         $d = $this->decorator;
 
+        $displayKeys = $this->displayKeys;
+        if ($displayKeys === 'auto') {
+            $displayKeys = false;
+            foreach ($this->keys as $key)
+                if (!is_int($key)) {
+                    $displayKeys = true;
+                    break;
+                }
+        }
+
         $table = $i . $this->line($d->getTopLeft(), $d->getHorizontal(), $d->getHorizontalDown(), $d->getTopRight()) . PHP_EOL;
 
-        $keysRow = array_combine($this->keys, $this->keys);
-        if ($this->upperKeys)
-            $keysRow = array_map('mb_strtoupper', $keysRow);
-        $table .= $i . $this->row($keysRow, $this->keysAlignment) . PHP_EOL;
+        if ($displayKeys) {
+            $keysRow = array_combine($this->keys, $this->keys);
+            if ($this->upperKeys)
+                $keysRow = array_map('mb_strtoupper', $keysRow);
+            $table .= $i . $this->row($keysRow, $this->keysAlignment) . PHP_EOL;
 
-        $table .= $i . $this->line($d->getVerticalRight(), $d->getHorizontal(), $d->getCross(), $d->getVerticalLeft()) . PHP_EOL;
+            $table .= $i . $this->line($d->getVerticalRight(), $d->getHorizontal(), $d->getCross(), $d->getVerticalLeft()) . PHP_EOL;
+        }
 
         foreach ($data as $row)
             $table .= $i . $this->row($row, $this->valuesAlignment) . PHP_EOL;
@@ -68,6 +82,10 @@ class ArrayToTextTable {
 
     public function getIndentation() {
         return $this->indentation;
+    }
+
+    public function getDisplayKeys() {
+        return $this->displayKeys;
     }
 
     public function getUpperKeys() {
@@ -93,6 +111,11 @@ class ArrayToTextTable {
 
     public function setIndentation($indentation) {
         $this->indentation = $indentation;
+        return $this;
+    }
+
+    public function setDisplayKeys($displayKeys) {
+        $this->displayKeys = $displayKeys;
         return $this;
     }
 
