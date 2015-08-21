@@ -41,6 +41,10 @@ class ArrayToTextTable {
             ->setFormatter(null);
     }
 
+    public function __toString() {
+        return $this->getTable();
+    }
+
     public function getTable($data = null) {
         if (!is_null($data))
             $this->setData($data);
