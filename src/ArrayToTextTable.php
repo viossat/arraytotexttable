@@ -143,7 +143,7 @@ class ArrayToTextTable {
         $line = $left;
         foreach ($this->keys as $key)
             $line .= str_repeat($horizontal, $this->widths[$key]+2) . $link;
-        return mb_substr($line, 0, -1) . $right;
+        return mb_substr($line, 0, -mb_strlen($horizontal)) . $right;
     }
 
     protected function row($row, $alignment) {
