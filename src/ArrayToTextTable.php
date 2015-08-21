@@ -31,9 +31,8 @@ class ArrayToTextTable {
     protected $formatter;
 
     public function __construct($data) {
-        $this->data = $data;
-
         $this->setDecorator(new \Zend\Text\Table\Decorator\Unicode())
+            ->setData($data)
             ->setIndentation('')
             ->setDisplayKeys('auto')
             ->setUpperKeys(true)
@@ -76,6 +75,10 @@ class ArrayToTextTable {
         return $table;
     }
 
+    public function getData() {
+        return $this->data;
+    }
+
     public function getDecorator() {
         return $this->decorator;
     }
@@ -102,6 +105,11 @@ class ArrayToTextTable {
 
     public function getFormatter() {
         return $this->formatter;
+    }
+
+    public function setData($data) {
+        $this->data = $data;
+        return $this;
     }
 
     public function setDecorator($decorator) {
