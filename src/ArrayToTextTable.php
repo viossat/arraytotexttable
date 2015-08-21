@@ -143,7 +143,11 @@ class ArrayToTextTable {
         $line = $left;
         foreach ($this->keys as $key)
             $line .= str_repeat($horizontal, $this->widths[$key]+2) . $link;
-        return mb_substr($line, 0, -mb_strlen($horizontal)) . $right;
+
+        if (mb_strlen($line) > mb_strlen($left))
+            $line = mb_substr($line, 0, -mb_strlen($horizontal));
+
+        return $line . $right;
     }
 
     protected function row($row, $alignment) {
@@ -152,6 +156,10 @@ class ArrayToTextTable {
             $value = isset($row[$key]) ? $row[$key] : '';
             $line .= ' ' . static::mb_str_pad($value, $this->widths[$key], ' ', $alignment) . ' ' . $this->decorator->getVertical();
         }
+
+        if (empty($row))
+            $line .= $this->decorator->getVertical();
+
         return $line;
     }
 
