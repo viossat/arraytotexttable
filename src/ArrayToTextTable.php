@@ -108,7 +108,18 @@ class ArrayToTextTable {
     }
 
     public function setData($data) {
-        $this->data = $data;
+        if (!is_array($data))
+            $data = [];
+
+        $arrayData = [];
+        foreach ($data as $row) {
+            if (is_array($row))
+                $arrayData[] = $row;
+            else if (is_object($row))
+                $arrayData[] = get_object_vars($row);
+        }
+
+        $this->data = $arrayData;
         return $this;
     }
 
