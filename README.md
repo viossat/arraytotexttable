@@ -17,7 +17,7 @@ composer require mathieuviossat/arraytotexttable
 ## Example
 
 ```php
-use \MathieuViossat\Util\ArrayToTextTable;
+use MathieuViossat\Util\ArrayToTextTable;
 
 $data = [
     [
@@ -58,7 +58,6 @@ $renderer = new ArrayToTextTable($data);
 echo $renderer->getTable();
 ```
 
-
 ## Result
 
 ```
@@ -77,6 +76,12 @@ echo $renderer->getTable();
 ## Options
 
 ```php
+$renderer->setData($newData);
+// Accepts array of arrays and array of objects.
+// Can also be called through getTable():
+$renderer = new ArrayToTextTable();
+echo $renderer->getTable($data);
+
 $renderer->setDecorator(new \Zend\Text\Table\Decorator\Ascii());
 // Unicode (default), Ascii, Blank
 
