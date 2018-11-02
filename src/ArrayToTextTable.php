@@ -215,11 +215,15 @@ class ArrayToTextTable {
         return $data;
     }
 
+    protected function countCJK($string) {
+        return preg_match_all('/[\p{Han}\p{Katakana}\p{Hiragana}\p{Hangul}]/u', $string);
+    }
+
     protected function setWidth($key, $value) {
         if (!isset($this->widths[$key]))
             $this->widths[$key] = 0;
 
-        $width = mb_strlen($value);
+        $width = mb_strlen($value) + $this->countCJK($value);
         if ($width > $this->widths[$key])
             $this->widths[$key] = $width;
     }
@@ -228,7 +232,7 @@ class ArrayToTextTable {
         if ($encoding === null)
             $encoding = mb_internal_encoding();
 
-        $diff = strlen($input) - mb_strlen($input, $encoding);
+        $diff = mb_strlen($input) - mb_strlen($input, $encoding);
         return str_pad($input, $pad_length + $diff, $pad_string, $pad_type);
     }
 
