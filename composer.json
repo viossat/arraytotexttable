@@ -10,13 +10,13 @@
         "ascii",
         "unicode"
     ],
-    "homepage": "https://github.com/MathieuViossat/arraytotexttable",
+    "homepage": "https://github.com/viossat/arraytotexttable",
     "license": "MIT",
     "authors": [
         {
             "name": "Mathieu Viossat",
             "email": "mathieu@viossat.fr",
-            "homepage": "http://viossat.fr"
+            "homepage": "https://viossat.fr"
         }
     ],
     "autoload": {
