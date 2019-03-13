@@ -69,13 +69,13 @@ class ArrayToTextTable {
             $keysRow = array_combine($this->keys, $this->keys);
             if ($this->upperKeys)
                 $keysRow = array_map('mb_strtoupper', $keysRow);
-            $table .= $i . $this->row($keysRow, $this->keysAlignment) . PHP_EOL;
+            $table .= $i . implode(PHP_EOL, $this->row($keysRow, $this->keysAlignment)) . PHP_EOL;
 
             $table .= $i . $this->line($d->getVerticalRight(), $d->getHorizontal(), $d->getCross(), $d->getVerticalLeft()) . PHP_EOL;
         }
 
         foreach ($data as $row)
-            $table .= $i . $this->row($row, $this->valuesAlignment) . PHP_EOL;
+            $table .= $i . implode(PHP_EOL, $this->row($row, $this->valuesAlignment)) . PHP_EOL;
 
         $table .= $i . $this->line($d->getBottomLeft(), $d->getHorizontal(), $d->getHorizontalUp(), $d->getBottomRight()) . PHP_EOL;
 
@@ -177,11 +177,29 @@ class ArrayToTextTable {
     }
 
     protected function row($row, $alignment) {
-        $line = $this->decorator->getVertical();
+        $data = [];
+        $height = 1;
         foreach ($this->keys as $key) {
-            $value = isset($row[$key]) ? $row[$key] : '';
-            $line .= ' ' . static::mb_str_pad($value, $this->widths[$key], ' ', $alignment) . ' ' . $this->decorator->getVertical();
+            $data[$key] = isset($row[$key]) ? static::valueToLines($row[$key]) : [''];
+            $height = max($height, count($data[$key]));
         }
+
+        $rowLines = [];
+        for ($i = 0; $i < $height; $i++) {
+            $rowLine = [];
+            foreach ($data as $key => $value)
+                $rowLine[$key] = isset($value[$i]) ? $value[$i] : '';
+            $rowLines[] = $this->rowLine($rowLine, $alignment);
+        }
+
+        return $rowLines;
+    }
+
+    protected function rowLine($row, $alignment) {
+        $line = $this->decorator->getVertical();
+
+        foreach ($row as $key => $value)
+            $line .= ' ' . static::mb_str_pad($value, $this->widths[$key], ' ', $alignment) . ' ' . $this->decorator->getVertical();
 
         if (empty($row))
             $line .= $this->decorator->getVertical();
@@ -223,9 +241,15 @@ class ArrayToTextTable {
         if (!isset($this->widths[$key]))
             $this->widths[$key] = 0;
 
-        $width = mb_strlen($value) + $this->countCJK($value);
-        if ($width > $this->widths[$key])
-            $this->widths[$key] = $width;
+        foreach (static::valueToLines($value) as $line) {
+            $width = mb_strlen($line) + $this->countCJK($line);
+            if ($width > $this->widths[$key])
+                $this->widths[$key] = $width;
+        }
+    }
+
+    protected static function valueToLines($value) {
+        return explode("\n", $value);
     }
 
     protected static function mb_str_pad($input, $pad_length, $pad_string = ' ', $pad_type = STR_PAD_RIGHT, $encoding = null) {
