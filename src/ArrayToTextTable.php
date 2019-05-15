@@ -233,7 +233,7 @@ class ArrayToTextTable {
         return $data;
     }
 
-    protected function countCJK($string) {
+    protected static function countCJK($string) {
         return preg_match_all('/[\p{Han}\p{Katakana}\p{Hiragana}\p{Hangul}]/u', $string);
     }
 
@@ -242,7 +242,7 @@ class ArrayToTextTable {
             $this->widths[$key] = 0;
 
         foreach (static::valueToLines($value) as $line) {
-            $width = mb_strlen($line) + $this->countCJK($line);
+            $width = mb_strlen($line) + self::countCJK($line);
             if ($width > $this->widths[$key])
                 $this->widths[$key] = $width;
         }
