@@ -253,11 +253,18 @@ class ArrayToTextTable {
     }
 
     protected static function mb_str_pad($input, $pad_length, $pad_string = ' ', $pad_type = STR_PAD_RIGHT, $encoding = null) {
-        if ($encoding === null)
-            $encoding = mb_internal_encoding();
+        $encoding = $encoding === null ? mb_internal_encoding() : $encoding;
+        $pad_before = $pad_type === STR_PAD_BOTH || $pad_type === STR_PAD_LEFT;
+        $pad_after = $pad_type === STR_PAD_BOTH || $pad_type === STR_PAD_RIGHT;
+        $pad_length -= mb_strlen($input, $encoding) + self::countCJK($input);
+        $target_length = $pad_before && $pad_after ? $pad_length / 2 : $pad_length;
 
-        $diff = mb_strlen($input) - mb_strlen($input, $encoding);
-        return str_pad($input, $pad_length + $diff, $pad_string, $pad_type);
+        $repeat_times = ceil($target_length / mb_strlen($pad_string, $encoding));
+        $repeated_string = str_repeat($pad_string, max(0, $repeat_times));
+        $before = $pad_before ? mb_substr($repeated_string, 0, floor($target_length), $encoding) : '';
+        $after = $pad_after ? mb_substr($repeated_string, 0, ceil($target_length), $encoding) : '';
+
+        return $before . $input . $after;
     }
 
 }
