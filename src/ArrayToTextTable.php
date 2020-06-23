@@ -32,7 +32,7 @@ class ArrayToTextTable {
 
     public function __construct($data = []) {
         $this->setData($data)
-            ->setDecorator(new \Zend\Text\Table\Decorator\Unicode())
+            ->setDecorator(new \Laminas\Text\Table\Decorator\Unicode())
             ->setIndentation('')
             ->setDisplayKeys('auto')
             ->setUpperKeys(true)
