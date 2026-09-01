@@ -82,7 +82,7 @@ $renderer->setData($newData);
 $renderer = new ArrayToTextTable();
 echo $renderer->getTable($data);
 
-$renderer->setDecorator(new \Zend\Text\Table\Decorator\Ascii());
+$renderer->setDecorator(new \Laminas\Text\Table\Decorator\Ascii());
 // Unicode (default), Ascii, Blank
 
 $renderer->setIndentation("\t");
