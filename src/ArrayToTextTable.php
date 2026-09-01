@@ -263,7 +263,12 @@ class ArrayToTextTable {
     }
 
     protected static function valueToLines($value) {
-        return explode("\n", $value);
+        if (is_array($value))
+            $value = 'array(' . count($value) . ')';
+        else if (is_object($value) && !$value instanceof \Stringable)
+            $value = get_class($value);
+
+        return explode("\n", (string) $value);
     }
 
     protected static function strPad($input, $pad_length, $pad_string = ' ', $pad_type = STR_PAD_RIGHT) {
