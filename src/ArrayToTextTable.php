@@ -19,6 +19,13 @@ class ArrayToTextTable {
     const AlignCenter = STR_PAD_BOTH;
     const AlignRight  = STR_PAD_LEFT;
 
+    // ANSI escape sequences take no space on screen, so they are stripped before a string is measured.
+    // Covers the three forms that carry no printable text:
+    //   - CSI   "ESC [ <params> <intermediates> <final>"  (SGR colors/styles, cursor moves, erase, ...)
+    //   - OSC   "ESC ] <text> <BEL | ST>"                 (window title, OSC 8, hyperlinks, ...)
+    //   - Fe/Fs "ESC <single byte 0x40-0x7E>"             (two-byte escapes such as RI, NEL, RIS, ...)
+    const AnsiPattern = '#\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\\\)|[@-~])#';
+
     protected $data;
     protected $keys;
     protected $widths;
@@ -237,12 +244,22 @@ class ArrayToTextTable {
         return preg_match_all('/[\p{Han}\p{Katakana}\p{Hiragana}\p{Hangul}]/u', $string);
     }
 
+    protected static function stripAnsi($string) {
+        return (string) preg_replace(self::AnsiPattern, '', (string) $string);
+    }
+
+    protected static function strWidth($string, $encoding = null) {
+        $string = static::stripAnsi($string);
+        $encoding = $encoding === null ? mb_internal_encoding() : $encoding;
+        return mb_strlen($string, $encoding) + static::countCJK($string);
+    }
+
     protected function setWidth($key, $value) {
         if (!isset($this->widths[$key]))
             $this->widths[$key] = 0;
 
         foreach (static::valueToLines($value) as $line) {
-            $width = mb_strlen($line) + self::countCJK($line);
+            $width = static::strWidth($line);
             if ($width > $this->widths[$key])
                 $this->widths[$key] = $width;
         }
@@ -256,7 +273,7 @@ class ArrayToTextTable {
         $encoding = $encoding === null ? mb_internal_encoding() : $encoding;
         $pad_before = $pad_type === STR_PAD_BOTH || $pad_type === STR_PAD_LEFT;
         $pad_after = $pad_type === STR_PAD_BOTH || $pad_type === STR_PAD_RIGHT;
-        $pad_length -= mb_strlen($input, $encoding) + self::countCJK($input);
+        $pad_length -= static::strWidth($input, $encoding);
         $target_length = $pad_before && $pad_after ? $pad_length / 2 : $pad_length;
 
         $repeat_times = ceil($target_length / mb_strlen($pad_string, $encoding));
