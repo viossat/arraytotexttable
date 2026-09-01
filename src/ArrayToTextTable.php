@@ -231,7 +231,7 @@ class ArrayToTextTable {
         $this->keys = array_unique($this->keys);
 
         foreach ($this->keys as $key)
-            $this->setWidth($key, $key);
+            $this->setWidth($key, $this->upperKeys ? mb_strtoupper($key) : $key);
 
         foreach ($data as $row)
             foreach ($row as $columnKey => $columnValue)
