@@ -173,14 +173,11 @@ class ArrayToTextTable {
     }
 
     protected function line($left, $horizontal, $link, $right) {
-        $line = $left;
+        $segments = [];
         foreach ($this->keys as $key)
-            $line .= str_repeat($horizontal, $this->widths[$key]+2) . $link;
+            $segments[] = static::repeatToWidth($horizontal, $this->widths[$key] + 2);
 
-        if (mb_strlen($line) > mb_strlen($left))
-            $line = mb_substr($line, 0, -mb_strlen($horizontal));
-
-        return $line . $right;
+        return $left . implode($link, $segments) . $right;
     }
 
     protected function row($row, $alignment) {
@@ -246,6 +243,12 @@ class ArrayToTextTable {
 
     protected static function strWidth($string) {
         return mb_strwidth(static::stripAnsi($string));
+    }
+
+    protected static function repeatToWidth($string, $width) {
+        $unit = max(1, static::strWidth($string));
+        $filled = str_repeat($string, intdiv($width, $unit));
+        return $filled . str_repeat(' ', $width - static::strWidth($filled));
     }
 
     protected function setWidth($key, $value) {
